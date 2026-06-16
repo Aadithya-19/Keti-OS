@@ -1,7 +1,12 @@
 # Contributing to Keti OS
+<<<<<<< HEAD
 Keti OS is open source and free to use. If you fork it, 
 a mention or link back to the original repo is appreciated 
 (though not legally required). Built by Aadithya Vasudevan (Aadithya-19).
+=======
+Keti OS is open source and free to use. If you fork it, a mention or link back to the original repo is appreciated (though not legally required). Built by Aadithya Vasudevan (Aadithya-19).
+
+>>>>>>> cd9ec2b (Done with basic vga, it can now print text and clear, updated make file)
 
 ## How to contribute
 - Fork the repo
