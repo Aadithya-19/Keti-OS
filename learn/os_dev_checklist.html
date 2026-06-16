@@ -1,0 +1,197 @@
+
+<style>
+  :root { --gap: 12px; }
+  .phase { margin-bottom: 2rem; }
+  .phase-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 0.75rem; padding-bottom: 8px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .phase-header h2 { font-size: 15px; font-weight: 500; margin: 0; color: var(--color-text-primary); }
+  .phase-badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 20px;
+    font-weight: 500; white-space: nowrap;
+  }
+  .progress-bar-wrap { flex: 1; background: var(--color-background-secondary); border-radius: 99px; height: 5px; min-width: 60px; }
+  .progress-bar { height: 5px; border-radius: 99px; transition: width 0.3s; }
+  .item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 10px; border-radius: var(--border-radius-md);
+    cursor: pointer; transition: background 0.15s;
+    border: 0.5px solid transparent;
+  }
+  .item:hover { background: var(--color-background-secondary); border-color: var(--color-border-tertiary); }
+  .item.done { opacity: 0.55; }
+  .item.done .item-title { text-decoration: line-through; }
+  .checkbox {
+    width: 17px; height: 17px; border-radius: 4px; flex-shrink: 0; margin-top: 1px;
+    border: 1.5px solid var(--color-border-secondary);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .checkbox.checked { border-color: transparent; }
+  .checkbox.checked i { display: block; }
+  .checkbox i { display: none; font-size: 12px; }
+  .item-title { font-size: 14px; color: var(--color-text-primary); line-height: 1.4; }
+  .item-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.4; }
+  .tag {
+    font-size: 10px; padding: 1px 6px; border-radius: 20px; margin-left: 6px;
+    vertical-align: middle; font-weight: 500;
+  }
+  .tag-asm { background: #FAEEDA; color: #633806; }
+  .tag-c { background: #E6F1FB; color: #0C447C; }
+  .tag-theory { background: #EEEDFE; color: #3C3489; }
+  .summary-row { display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 16px; flex: 1; min-width: 100px; }
+  .stat-n { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .stat-l { font-size: 12px; color: var(--color-text-secondary); margin-top: 1px; }
+  .reset-btn { font-size: 12px; color: var(--color-text-secondary); background: none; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 4px 10px; cursor: pointer; float: right; }
+  .reset-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden">OS development learning checklist with phases and checkboxes</h2>
+
+<div style="padding: 1rem 0">
+
+<div class="summary-row">
+  <div class="stat"><div class="stat-n" id="done-count">0</div><div class="stat-l">completed</div></div>
+  <div class="stat"><div class="stat-n" id="total-count">0</div><div class="stat-l">total items</div></div>
+  <div class="stat"><div class="stat-n" id="pct-count">0%</div><div class="stat-l">progress</div></div>
+  <button class="reset-btn" onclick="resetAll()"><i class="ti ti-refresh" aria-hidden="true"></i> reset</button>
+</div>
+
+<div id="checklist"></div>
+</div>
+
+<script>
+const phases = [
+  {
+    id: "p1", label: "Phase 1 — prerequisites & toolchain", color: "#3C3489", bar: "#7F77DD",
+    badge: { bg: "#EEEDFE", text: "#3C3489" },
+    items: [
+      { id: "i01", title: "x86 architecture basics", sub: "registers (EAX–EDI, ESP, EBP, EIP), flags, memory segmentation model", tags: ["theory"] },
+      { id: "i02", title: "NASM / GAS assembly fundamentals", sub: "mov, push/pop, call/ret, int; understand real mode vs protected mode syntax", tags: ["asm"] },
+      { id: "i03", title: "Set up cross-compiler: GCC i686-elf toolchain", sub: "build or download a freestanding i686-elf-gcc — essential so you don't link libc", tags: ["c"] },
+      { id: "i04", title: "QEMU / Bochs emulator setup", sub: "test without rebooting a real machine; QEMU is faster, Bochs has better debugger", tags: ["theory"] },
+      { id: "i05", title: "GDB remote debugging with QEMU", sub: "qemu -s -S flag + gdb target remote; you'll need this constantly", tags: ["c"] },
+      { id: "i06", title: "Understand ELF binary format", sub: "sections (.text .data .bss), entry point, linker scripts (.ld files)", tags: ["theory"] },
+    ]
+  },
+  {
+    id: "p2", label: "Phase 2 — booting", color: "#085041", bar: "#1D9E75",
+    badge: { bg: "#E1F5EE", text: "#085041" },
+    items: [
+      { id: "i07", title: "How BIOS/UEFI boots: the boot sequence", sub: "POST → MBR → bootloader → kernel; understand what state CPU is in at power-on", tags: ["theory"] },
+      { id: "i08", title: "Write a minimal bootloader in assembly", sub: "fits in 512 bytes, prints 'Hello', BIOS int 10h — proves you control the machine", tags: ["asm"] },
+      { id: "i09", title: "Use GRUB as your bootloader (recommended shortcut)", sub: "GRUB implements Multiboot spec; you write a kernel, GRUB loads it — saves weeks", tags: ["c"] },
+      { id: "i10", title: "Multiboot header in your kernel", sub: "magic number 0x1BADB002, flags, checksum — GRUB handshake", tags: ["asm"] },
+      { id: "i11", title: "Enter protected mode (32-bit)", sub: "set GDT, flip CR0 bit, far jump — or just let GRUB do it for you", tags: ["asm"] },
+      { id: "i12", title: "Set up a basic linker script", sub: "place .text at 1MB+, align sections, define kernel entry symbol", tags: ["c"] },
+    ]
+  },
+  {
+    id: "p3", label: "Phase 3 — kernel foundations", color: "#185FA5", bar: "#378ADD",
+    badge: { bg: "#E6F1FB", text: "#185FA5" },
+    items: [
+      { id: "i13", title: "VGA text mode output", sub: "write to 0xB8000; implement kprintf — your first debug tool", tags: ["c"] },
+      { id: "i14", title: "GDT (Global Descriptor Table)", sub: "set up code, data, stack segment descriptors in C + assembly", tags: ["c", "asm"] },
+      { id: "i15", title: "IDT (Interrupt Descriptor Table) + ISRs", sub: "wire CPU exceptions (div-by-zero, page fault) and IRQs to C handlers", tags: ["c", "asm"] },
+      { id: "i16", title: "PIC remapping (8259 chip)", sub: "remap IRQ0–15 away from CPU exception vectors 0–31", tags: ["asm"] },
+      { id: "i17", title: "Keyboard driver via IRQ1", sub: "read scancode from port 0x60, build a scancode→ASCII map", tags: ["c"] },
+      { id: "i18", title: "PIT timer (IRQ0) — system tick", sub: "program 8253/8254 for ~100Hz; implement uptime counter and sleep()", tags: ["c"] },
+    ]
+  },
+  {
+    id: "p4", label: "Phase 4 — memory management", color: "#993C1D", bar: "#D85A30",
+    badge: { bg: "#FAECE7", text: "#993C1D" },
+    items: [
+      { id: "i19", title: "Physical memory manager (PMM)", sub: "bitmap allocator over the Multiboot memory map; alloc_frame() / free_frame()", tags: ["c"] },
+      { id: "i20", title: "Paging — enabling virtual memory", sub: "page directory, page tables, CR3 register, identity map first 4MB", tags: ["c", "asm"] },
+      { id: "i21", title: "Kernel heap allocator", sub: "simple kmalloc/kfree over a fixed slab or buddy allocator — don't port libc yet", tags: ["c", "theory"] },
+      { id: "i22", title: "Understand page faults", sub: "ISR 14 handler — distinguish kernel bugs from user access violations", tags: ["theory"] },
+    ]
+  },
+  {
+    id: "p5", label: "Phase 5 — processes & shell", color: "#3B6D11", bar: "#639922",
+    badge: { bg: "#EAF3DE", text: "#3B6D11" },
+    items: [
+      { id: "i23", title: "Task / process structure", sub: "PCB (process control block): registers, stack pointer, page directory, state", tags: ["c", "theory"] },
+      { id: "i24", title: "Context switching", sub: "save/restore registers on timer IRQ; round-robin scheduler to start", tags: ["c", "asm"] },
+      { id: "i25", title: "System call interface", sub: "int 0x80 dispatch table; implement write(), read(), exit() first", tags: ["c", "asm"] },
+      { id: "i26", title: "User mode (ring 3)", sub: "set up user-mode segments, TSS, iret to ring 3 — security boundary", tags: ["asm", "theory"] },
+      { id: "i27", title: "Simple shell in userspace", sub: "reads keystrokes via syscall, tokenises input, forks+execs commands", tags: ["c"] },
+    ]
+  },
+  {
+    id: "p6", label: "Phase 6 — filesystem (for chess binary)", color: "#854F0B", bar: "#BA7517",
+    badge: { bg: "#FAEEDA", text: "#854F0B" },
+    items: [
+      { id: "i28", title: "Virtual filesystem (VFS) layer", sub: "abstract inode interface; open/read/write/close ops — lets you swap backends", tags: ["c", "theory"] },
+      { id: "i29", title: "initrd / ramdisk", sub: "embed a tar archive in the kernel image; mount it as root — no disk driver needed yet", tags: ["c"] },
+      { id: "i30", title: "Load and execute ELF binaries", sub: "parse ELF header, map segments, jump to entry — this lets you run chess as a process", tags: ["c"] },
+    ]
+  },
+];
+
+const STORAGE_KEY = "osdev_checklist_v1";
+let checked = {};
+
+function load() {
+  try { checked = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { checked = {}; }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(checked)); } catch {}
+}
+function resetAll() {
+  if (confirm("Reset all progress?")) { checked = {}; save(); render(); }
+}
+
+function toggle(id) {
+  checked[id] = !checked[id];
+  save();
+  render();
+}
+
+function render() {
+  const container = document.getElementById("checklist");
+  let allDone = 0, allTotal = 0;
+  let html = "";
+
+  phases.forEach(ph => {
+    const total = ph.items.length;
+    const done = ph.items.filter(it => checked[it.id]).length;
+    allDone += done; allTotal += total;
+    const pct = total ? Math.round(done / total * 100) : 0;
+
+    html += `<div class="phase">
+      <div class="phase-header">
+        <h2>${ph.label}</h2>
+        <span class="phase-badge" style="background:${ph.badge.bg};color:${ph.badge.text}">${done}/${total}</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%;background:${ph.bar}"></div></div>
+      </div>`;
+
+    ph.items.forEach(it => {
+      const isDone = !!checked[it.id];
+      const tags = (it.tags || []).map(t => `<span class="tag tag-${t}">${t}</span>`).join("");
+      html += `<div class="item ${isDone ? "done" : ""}" onclick="toggle('${it.id}')">
+        <div class="checkbox ${isDone ? "checked" : ""}" style="${isDone ? "background:" + ph.bar : ""}">
+          <i class="ti ti-check" style="color:#fff" aria-hidden="true"></i>
+        </div>
+        <div>
+          <div class="item-title">${it.title}${tags}</div>
+          <div class="item-sub">${it.sub}</div>
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
+  document.getElementById("done-count").textContent = allDone;
+  document.getElementById("total-count").textContent = allTotal;
+  document.getElementById("pct-count").textContent = Math.round(allDone / allTotal * 100) + "%";
+}
+
+load(); render();
+</script>
