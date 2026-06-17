@@ -12,13 +12,13 @@ section .text
     dd CHECKSUM
 
 loader:
-    mov esp, kernel_stack + STACK_SIZE   ; set up stack for C
-    call kernel_main                      ; jump into C
+    mov esp, kernel_stack + STACK_SIZE ; set up stack for C
+    call kernel_main ; jump into C
 .loop:
-    jmp .loop                            ; if C ever returns, hang
+    jmp .loop ; if C ever returns, hang
 
 STACK_SIZE equ 4096
 section .bss
-kernel_stack: resb STACK_SIZE           ; reserve 4KB for the stack
+kernel_stack: resb STACK_SIZE ; reserve 4KB for the stack
 
 section .note.GNU-stack noalloc noexec nowrite progbits

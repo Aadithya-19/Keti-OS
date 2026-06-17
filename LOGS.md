@@ -29,3 +29,11 @@ Also if you make clean and it says any .o file not found, try running
 i686-linux-gnu-gcc -m32 -ffreestanding -c kernel/vga.c -o kernel/vga.o
 
 nvm, fixed.
+
+Log 3 (06/17):
+
+Tiring session today, did a lot of GDT stuff and reading. Basically a lot of seg based stuff. added the assembly file and it is basically simple and self explanatory. I also added the stuff in vga regarding the cursor, so it can handle next line and overflow easily. So in terms of VGA, next would be scrolling. Another thing to note is GDT allows it to have its own memory map and doesn't rely on GRUBs. So Keti can remember stuff, peak.
+
+You can read this stuff in Chapter 5 in the book.
+
+Unfortunately, I am burnt out for the day and I can't see visual progress (which I can't wait for), so Im gonna study for my classes now...yipee :<
