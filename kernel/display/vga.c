@@ -3,12 +3,24 @@ Each character is 2 bytes - ASCII then color
 Screen is 80 columns × 25 rows
 Color 0x0F is white on black*/
 #include "vga.h"
+#include "drivers/ports.h"
+#include "lib/string.h"
+#include "drivers/timer.h"
+
 int cursor_row = 0;
 int cursor_col = 0;
 
+void update_cursor(int row, int col) {
+    unsigned short pos = row * 80 + col;
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (unsigned char)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
+}
+
 //so this function will be used to display anything string we want to print onto the OS for now
 //old function jsut statically printed regardless of anything and overwrote, now we will implement cursor technique
-void print_vga(char *str){
+void print_vga(const char *str){
     // int rows = 25;
     // int col = 80;
     
@@ -32,6 +44,7 @@ void print_vga(char *str){
         }
 
     }
+    update_cursor(cursor_row, cursor_col);
 }
 
 void print_char_vga(char c){
@@ -49,6 +62,7 @@ void print_char_vga(char c){
         cursor_col=0;
         cursor_row++;
     }
+    update_cursor(cursor_row, cursor_col);
 }
 
 void print_hex_vga(unsigned int n){
@@ -65,6 +79,7 @@ void print_hex_vga(unsigned int n){
         }
         print_char_vga(c);
     }
+    update_cursor(cursor_row, cursor_col);
 }
 
 
@@ -82,6 +97,7 @@ void delete_char_vga(){
         //fix? i dont know \(*.*)/
         //ill come back to it
     } // a quick thought since i cant just keep pressing the cursor for each row, when you reach beginning of the line, a delete will take you up.
+    update_cursor(cursor_row, cursor_col);
 }
 
 //self explanatory, clears it
@@ -89,9 +105,29 @@ void clear_vga(){
     char *out = (char *)0xB8000;
     int i = 0;
     //2000 because thats the total available characters (4000 bytes, cuz each is 2bytes)
-    while (i<2000) {
+    while (i < 2000) {
         out[i*2] = ' ';
         out[i*2 + 1] = 0x0F;
         i++;
     }
+    cursor_row = 0;
+    cursor_col = 0;
+    update_cursor(cursor_row, cursor_col);
 }
+
+
+//time integration (fun)
+
+void write_pos(int row, int col, const char *str){
+    char *out = (char *)0xB8000;
+    int i = 0;
+     while (str[i] != '\0') {   
+        int index = (row*80 + col + i)*2;
+        out[index] = str[i];
+        out[index + 1] = 0x0F;
+        i++;
+
+    }
+}
+
+

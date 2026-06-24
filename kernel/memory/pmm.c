@@ -70,4 +70,4 @@ void innit(struct multiboot_info *mb_info){ //not a type mistake innit
         bitmap_set(addr/4096);
         addr+=4096;
     }
-}  
+}

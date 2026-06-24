@@ -6,13 +6,14 @@
 #include "memory/multiboot.h"
 #include "memory/paging.h"
 #include "memory/heap.h"
+#include "shell/shell.h"
 
 void kernel_main(unsigned int multiboot_ptr) {
     gdt_init();
     idt_init();
     keyboard_init();
     clear_vga();
-    print_vga("Keti OS\nBy Aadithya Vasudevan\nVersion 1.0");
+    print_vga("Keti OS\nBy Aadithya Vasudevan\nVersion 1.0\ntype 'help' to get started\n'about' to learn more\n\n");
     timer_init();
     innit((struct multiboot_info *)multiboot_ptr);
     paging_init();
@@ -27,6 +28,7 @@ void kernel_main(unsigned int multiboot_ptr) {
     // unsigned int *bad = (unsigned int *)0x2000000;   // 32MB - unmapped
     // *bad = 42; 
 
+    //testing kmalloc and kfree
     // void *a = kmalloc(100);
     // print_hex_vga((unsigned int)a);
     // print_char_vga('\n');
@@ -40,7 +42,8 @@ void kernel_main(unsigned int multiboot_ptr) {
     // void *c = kmalloc(50);
     // print_hex_vga((unsigned int)c);
     // print_char_vga('\n');
-    
+
+    shell_init();
     __asm__ volatile ("sti");
     while(1) {}
 }

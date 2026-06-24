@@ -51,6 +51,6 @@ void pic_remap() {
     outb(0x21, 0x01);
     outb(0xA1, 0x01);
 
-    outb(0x21, 0xFD); //very important to show keypress, when firing everything except keyboard gets masked
+    outb(0x21, 0xFC); //very important to show keypress, when firing everything except keyboard gets masked
     outb(0xA1, 0xFF); //all slave IRQ also gets masked
 }

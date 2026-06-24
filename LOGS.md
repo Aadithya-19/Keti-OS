@@ -70,3 +70,22 @@ A lot of reading in the past few sessions because of the memory allocation. So w
 I also did the paging and set up the physical memory management. So, big session today.
 
 One thing to note: my logs are getting smaller because I am reaching the end and there is less yap now. So, peak stuff. Also, the files have been neatly ordered and look better now, I feel.
+
+Possible future endeavors:
+
+Shell (Phase 5, now)
+Clock display (Phase 5+)
+sysinfo command (Phase 5+)
+Auth screen (Phase 5+)
+RTC / calendar (Phase 6)
+Text editor (Phase 6)
+Filesystem (Phase 6)
+Chess / Tetris (Phase 6)
+Screensaver (whenever)
+Shutdown command (whenever)
+Color themes (whenever)
+
+Future idea as well:
+Core OS: shell, filesystem, games (current work)
+Keti Language: simple interpreted language, native to the OS with a built-in tutorial command
+Keti AI: small inference engine in C, no dependencies tiny model embedded or loaded from disk

@@ -57,11 +57,22 @@ kernel/memory/paging.o: kernel/memory/paging.c
 kernel/memory/heap.o: kernel/memory/heap.c
 	$(CC) $(CFLAGS) -c kernel/memory/heap.c -o kernel/memory/heap.o
 
+#Shell
+kernel/shell/shell.o: kernel/shell/shell.c
+	$(CC) $(CFLAGS) -c kernel/shell/shell.c -o kernel/shell/shell.o
+
+
+#Library Functions
+kernel/lib/string.o: kernel/lib/string.c
+	$(CC) $(CFLAGS) -c kernel/lib/string.c -o kernel/lib/string.o
+
 # Link
 OBJS = boot/loader.o boot/gdt_load.o boot/idt_load.o boot/isr.o boot/load_paging.o \
        kernel/kernel.o kernel/display/vga.o kernel/cpu/gdt.o kernel/cpu/idt.o \
        kernel/drivers/ports.o kernel/drivers/keyboard.o kernel/drivers/timer.o \
-       kernel/memory/pmm.o kernel/memory/paging.o kernel/memory/heap.o
+       kernel/memory/pmm.o kernel/memory/paging.o kernel/memory/heap.o \
+	   kernel/shell/shell.o \
+	   kernel/lib/string.o
 
 $(BUILD_DIR)/kernel.elf: $(OBJS)
 	mkdir -p $(BUILD_DIR)

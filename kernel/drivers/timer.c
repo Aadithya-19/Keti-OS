@@ -1,11 +1,16 @@
 #include "timer.h"
 #include "ports.h"
+#include "display/vga.h"
+#include "lib/string.h"
 #include "cpu/idt.h"
 
 extern void timer_isr();
 
 unsigned int tick = 0;
 
+int tz_offset_minutes = 0;   // start at UTC
+int use_12_hour = 1;
+int dst_offset = 0;
 //1193182Hz at a 100Hz will be 11931
 void timer_init(){
     unsigned int top = 11931;
@@ -14,8 +19,57 @@ void timer_init(){
     outb(0x40, (top >> 8) & 0xFF); // high byte
     idt_fill(32, (unsigned int)timer_isr); // register handler
 }
-
 void timer_handler(){
     tick++;
-    timer_isr();
+    if (tick % 100 == 0) {
+        unsigned char h = bcd_to_bin(read_rtc(4));
+        unsigned char m = bcd_to_bin(read_rtc(2));
+        unsigned char s = bcd_to_bin(read_rtc(0));
+        
+        // apply timezone offset
+        int total_minutes = h * 60 + m + tz_offset_minutes + dst_offset;
+
+        // wrap around 24 hours
+        while (total_minutes < 0) total_minutes += 24 * 60;
+        while (total_minutes >= 24 * 60) total_minutes -= 24 * 60;
+        
+        int hours_24 = total_minutes / 60;
+        int minutes = total_minutes % 60;
+        
+        int display_hours = hours_24;
+        const char *suffix = "";
+        
+        if (use_12_hour) {
+            suffix = (hours_24 >= 12) ? " PM" : " AM";
+            display_hours = hours_24 % 12;
+            if (display_hours == 0) display_hours = 12;
+        }
+        
+        char buf[16];
+        buf[0] = '0' + (display_hours / 10);
+        buf[1] = '0' + (display_hours % 10);
+        buf[2] = ':';
+        buf[3] = '0' + (minutes / 10);
+        buf[4] = '0' + (minutes % 10);
+        buf[5] = ':';
+        buf[6] = '0' + (s / 10);
+        buf[7] = '0' + (s % 10);
+        buf[8] = '\0';
+        
+        write_pos(0, 65, "            ");   //makes it clear the characters
+        write_pos(0, 65, buf);
+        if (use_12_hour) {
+            write_pos(0, 73, suffix);
+        }
+    }
+    outb(0x20, 0x20);
+}
+
+unsigned char bcd_to_bin(unsigned char val) {
+    return (val & 0x0F) + ((val >> 4) * 10);
+}
+
+unsigned char read_rtc(unsigned char reg) {
+    outb(0x70, reg);
+    return inb(0x71);
 }
