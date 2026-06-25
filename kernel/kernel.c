@@ -13,8 +13,8 @@
 extern void enter_usermode(unsigned int eip);
 
 // void user_task() {
- 
 // }
+
 void kernel_main(unsigned int multiboot_ptr) {
     gdt_init();
     idt_init();
@@ -27,7 +27,7 @@ void kernel_main(unsigned int multiboot_ptr) {
     paging_init();
     heap_init();
 
-
+    shell_init();
     __asm__ volatile ("sti");
     while(1) {}
 }
