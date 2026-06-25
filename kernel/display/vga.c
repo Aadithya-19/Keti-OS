@@ -41,6 +41,9 @@ void print_vga(const char *str){
         if (cursor_col==80){
             cursor_col=0;
             cursor_row++;
+            if (cursor_row >= 25) {
+                scroll_vga();
+            }
         }
 
     }
@@ -61,6 +64,9 @@ void print_char_vga(char c){
     if (cursor_col==80){
         cursor_col=0;
         cursor_row++;
+        if (cursor_row >= 25) {
+            scroll_vga();
+        }
     }
     update_cursor(cursor_row, cursor_col);
 }
@@ -130,4 +136,21 @@ void write_pos(int row, int col, const char *str){
     }
 }
 
+void scroll_vga(){
+    char *out = (char *)0xB8000;
+    for (int row = 1; row < 25; row++){
+        for (int col = 0; col < 80; col++){
+            int src = (row * 80 + col) * 2;
+            int dest = ((row-1) * 80 + col) * 2;
+            out[dest] = out[src];
+            out[dest+1] = out[src+1];
+        }
+    }
 
+    for (int col = 0; col < 80; col++){
+        int index = (24 * 80 + col) * 2;
+        out[index] = ' ';
+        out[index + 1] = 0x0F;
+    } 
+    cursor_row = 24;
+}

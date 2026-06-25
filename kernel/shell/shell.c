@@ -19,8 +19,8 @@ struct command commands[] = {
     {"clear", cmd_clear, "Clears the window"},
     {"about", cmd_about, "Learn more about Keti OS"},
     {"echo", cmd_echo, "Print what you feel"},
-    {"timezone", cmd_timezone, "Timezone command (eg. timezone EST), set your daylight savings time simulatenously (dst)"},
-    {"clock", cmd_clock, "Set clock format (12 or 24 hour), (eg. clock 12), set your daylight savings time simulatenously (dst)"},
+    {"timezone", cmd_timezone, "Timezone command (eg. timezone EST)"},
+    {"clock", cmd_clock, "Set clock format (12 or 24 hour), (eg. clock 12)"},
     {"dst", cmd_dst, "Set daylight savings time (dst on/off)"},
     {0, 0, 0}    // sentinel marking the end
 };

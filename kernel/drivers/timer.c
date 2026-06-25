@@ -3,6 +3,7 @@
 #include "display/vga.h"
 #include "lib/string.h"
 #include "cpu/idt.h"
+#include "process/scheduler.h"
 
 extern void timer_isr();
 
@@ -21,6 +22,7 @@ void timer_init(){
 }
 void timer_handler(){
     tick++;
+    scheduler_tick();
     if (tick % 100 == 0) {
         unsigned char h = bcd_to_bin(read_rtc(4));
         unsigned char m = bcd_to_bin(read_rtc(2));

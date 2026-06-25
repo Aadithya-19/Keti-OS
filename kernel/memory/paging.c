@@ -14,18 +14,20 @@ void paging_init(){
     for (int j = 0; j < 4; j++){
         for (int k = 0; k < 1024; k++){
             unsigned int frame = j*1024 + k;
-            page_tables[j][k] = (frame * 4096 | 0x3);
+            page_tables[j][k] = (frame * 4096) | 0x7;
         }
-        page_directory[j] = ((unsigned int) page_tables[j]) | 0x3;
+        page_directory[j] = ((unsigned int) page_tables[j]) | 0x7;
     }
-    
     load_paging();
 }
 
-void page_fault_handler(){
-    unsigned int fault_addr;
-    __asm__ volatile ("mov %%cr2, %0" : "=r"(fault_addr));
-    print_vga("\n Page is faulting at: ");
-    print_hex_vga(fault_addr);
+void page_fault_handler(unsigned int error_code) {
+    unsigned int faulting_address;
+    __asm__ volatile ("mov %%cr2, %0" : "=r"(faulting_address));
+    print_vga("\nPAGE FAULT at ");
+    print_hex_vga(faulting_address);
+    print_vga(" error: ");
+    print_hex_vga(error_code);
+    print_char_vga('\n');
     while(1) {}
 }

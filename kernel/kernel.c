@@ -7,10 +7,18 @@
 #include "memory/paging.h"
 #include "memory/heap.h"
 #include "shell/shell.h"
+#include "process/pcb.h"
+#include "process/scheduler.h"
 
+extern void enter_usermode(unsigned int eip);
+
+// void user_task() {
+ 
+// }
 void kernel_main(unsigned int multiboot_ptr) {
     gdt_init();
     idt_init();
+    pcb_init();
     keyboard_init();
     clear_vga();
     print_vga("Keti OS\nBy Aadithya Vasudevan\nVersion 1.0\ntype 'help' to get started\n'about' to learn more\n\n");
@@ -20,30 +28,6 @@ void kernel_main(unsigned int multiboot_ptr) {
     heap_init();
 
 
-    // print_hex_vga(alloc_frame());
-    // print_char_vga('\n');
-    // print_hex_vga(alloc_frame());
-
-    //testing fault handling
-    // unsigned int *bad = (unsigned int *)0x2000000;   // 32MB - unmapped
-    // *bad = 42; 
-
-    //testing kmalloc and kfree
-    // void *a = kmalloc(100);
-    // print_hex_vga((unsigned int)a);
-    // print_char_vga('\n');
-
-    // void *b = kmalloc(200);
-    // print_hex_vga((unsigned int)b);
-    // print_char_vga('\n');
-
-    // kfree(a);
-
-    // void *c = kmalloc(50);
-    // print_hex_vga((unsigned int)c);
-    // print_char_vga('\n');
-
-    shell_init();
     __asm__ volatile ("sti");
     while(1) {}
 }

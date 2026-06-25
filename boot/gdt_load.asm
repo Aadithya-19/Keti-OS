@@ -13,7 +13,11 @@ gdt_load:
     mov fs, ax
     mov gs, ax
 
+    
+
     jmp 0x08:flush
     flush:
+        mov ax, 0x2B    ; TSS selector (entry 5 * 8 = 40 = 0x28, | 3 = 0x2B)
+        ltr ax
         ret
 section .note.GNU-stack noalloc noexec nowrite progbits

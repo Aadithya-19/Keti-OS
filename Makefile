@@ -1,6 +1,6 @@
 ASM = nasm
 CC = i686-linux-gnu-gcc
-CFLAGS = -m32 -ffreestanding -Ikernel
+CFLAGS = -m32 -ffreestanding -Ikernel -fno-pic
 LD = ld
 BUILD_DIR = build
 
@@ -21,6 +21,12 @@ boot/isr.o: boot/isr.asm
 
 boot/load_paging.o: boot/load_paging.asm
 	$(ASM) -f elf32 boot/load_paging.asm -o boot/load_paging.o
+
+boot/user_mode.o: boot/user_mode.asm
+	$(ASM) -f elf32 boot/user_mode.asm -o boot/user_mode.o
+
+boot/context_switch.o: boot/context_switch.asm
+	$(ASM) -f elf32 boot/context_switch.asm -o boot/context_switch.o
 
 # Kernel core
 kernel/kernel.o: kernel/kernel.c
@@ -66,13 +72,22 @@ kernel/shell/shell.o: kernel/shell/shell.c
 kernel/lib/string.o: kernel/lib/string.c
 	$(CC) $(CFLAGS) -c kernel/lib/string.c -o kernel/lib/string.o
 
+#Process
+kernel/process/pcb.o: kernel/process/pcb.c
+	$(CC) $(CFLAGS) -c kernel/process/pcb.c -o kernel/process/pcb.o
+
+kernel/process/scheduler.o: kernel/process/scheduler.c
+	$(CC) $(CFLAGS) -c kernel/process/scheduler.c -o kernel/process/scheduler.o
+
+kernel/process/syscall.o: kernel/process/syscall.c
+	$(CC) $(CFLAGS) -c kernel/process/syscall.c -o kernel/process/syscall.o
+
 # Link
-OBJS = boot/loader.o boot/gdt_load.o boot/idt_load.o boot/isr.o boot/load_paging.o \
+OBJS = boot/loader.o boot/gdt_load.o boot/idt_load.o boot/isr.o boot/load_paging.o boot/context_switch.o boot/user_mode.o\
        kernel/kernel.o kernel/display/vga.o kernel/cpu/gdt.o kernel/cpu/idt.o \
        kernel/drivers/ports.o kernel/drivers/keyboard.o kernel/drivers/timer.o \
        kernel/memory/pmm.o kernel/memory/paging.o kernel/memory/heap.o \
-	   kernel/shell/shell.o \
-	   kernel/lib/string.o
+	   kernel/shell/shell.o kernel/lib/string.o kernel/process/pcb.o kernel/process/scheduler.o kernel/process/syscall.o
 
 $(BUILD_DIR)/kernel.elf: $(OBJS)
 	mkdir -p $(BUILD_DIR)

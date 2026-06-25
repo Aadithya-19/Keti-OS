@@ -9,5 +9,6 @@ void clear_vga();
 void update_cursor(int row, int col);
 void write_pos(int row, int col, const char *str);
 void timer_handler();
+void scroll_vga();
 
 #endif

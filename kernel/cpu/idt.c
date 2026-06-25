@@ -14,6 +14,7 @@ struct idt_descriptor idt_desc;
 
 extern void isr_default();
 extern void fault_handle();
+extern void syscall_isr();
 
 void idt_fill(int i, unsigned int handler){
     idt[i].low_handler_addr = handler & 0xFFFF; //lower 16
@@ -31,9 +32,11 @@ void idt_init(){
         }
     }
     idt_fill(14, (unsigned int)fault_handle);
+    idt_fill(0x80, (unsigned int)syscall_isr);
+    idt[0x80].types = 0xEE;
 
     pic_remap();
-    idt_desc.size = (sizeof(struct idt_entry) * 256) - 1; //
+    idt_desc.size = (sizeof(struct idt_entry) * 256) - 1;
     idt_desc.address = (unsigned int)&idt;
     idt_load();
 }
