@@ -16,6 +16,7 @@ extern void isr_default();
 extern void fault_handle();
 extern void syscall_isr();
 
+//fills the IDT struct. pretty self explanatory
 void idt_fill(int i, unsigned int handler){
     idt[i].low_handler_addr = handler & 0xFFFF; //lower 16
     idt[i].seg_select = 0x08;
@@ -25,7 +26,6 @@ void idt_fill(int i, unsigned int handler){
 }
 
 void idt_init(){
-    
     for (int i = 0; i < 256; i++) {
         idt_fill(i, (unsigned int)isr_default);
         if (i == 14){
@@ -41,6 +41,7 @@ void idt_init(){
     idt_load();
 }
 
+//remaps the Programmable Interrupt Control, since it setups up the signals from Hardware to Interrupt
 void pic_remap() {
     outb(0x20, 0x11);
     outb(0xA0, 0x11);

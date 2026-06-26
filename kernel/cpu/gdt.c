@@ -13,6 +13,9 @@ void gdt_set_entry(int i, unsigned int base, unsigned int limit, unsigned char a
         gdt[i].lim_flag_high = ((limit >> 16) & 0x0F) | (flags << 4); //upper 4 only and upper 4 of flag
         gdt[i].high_base = (base >> 24) & 0xFF; //upper 8
 }
+
+//a VERY long list of 0s. Since TSS (Task state segment) has a bunch of fields cpu needs to see, its mostly ignorable.
+//obviously the important ones have been set.
 void tss_init(){
     tss.prev_tss = 0;
     tss.esp0 = (unsigned int)kernel_stack + 4096; 
@@ -42,16 +45,18 @@ void tss_init(){
     tss.trap = 0;
     tss.iomap_base = 0;
 
+    //set the base as the address of the struct
     unsigned int tss_base = (unsigned int)&tss;
     unsigned int tss_limit = sizeof(struct tss_entry);
     gdt_set_entry(5, tss_base, tss_limit, 0x89, 0x0);
 }
 
+//entry for the main registers like null, Cs, ds, user (both 3 and 4), and 5 is the TSS 
 void gdt_init(){
     gdt_set_entry(0, 0, 0, 0, 0);
     gdt_set_entry(1, 0x0, 0xFFFFF, 0x9A, 0xC); //cs
     gdt_set_entry(2, 0x0, 0xFFFFF, 0x92, 0xC); //ds
-    gdt_set_entry(3, 0x0, 0xFFFFF, 0xFA, 0xC); // user code
+    gdt_set_entry(3, 0x0, 0xFFFFF, 0xFA, 0xC); //user code
     gdt_set_entry(4, 0x0, 0xFFFFF, 0xF2, 0xC);
     tss_init();
     gdt_desc.size = (sizeof(struct gdt_entry) * 6) - 1;

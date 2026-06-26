@@ -99,6 +99,8 @@ When i press up and down arrows, it goes remembers previous commands and stuff.
 
 Tomorrow I will do the backend for the shell, which is user mode, syscall, context and process control. I want to include a proper scroll that can remember previous stuff, and can move up and down. So I will do that eventually. After this, it will mostly be user based stuff, like tetris, chess and stuff. Eventually file manager will come in and networking, and auth ofc.
 
+---
+
 ## Log 7 - June 25
 
 Finally phase 5 is also done. This means keti now has user mode and it has run code in ring 3. So what i did is a lot of reading and coding. Had to change the gdt size to allow more stuff for TSS (task state segment) and I made a new folder process, where it has all that. So now it also allows syscall and do that. Scheduler has also been implemented, so that means it allows context switching and multi-task. Its a multi-turn type setup allowing each process to run for 100ms and saves, goes to the next. Good stuff. Now time to get more things on.
@@ -126,3 +128,9 @@ Phase 7:
 Phase 8:
   - Networking
   - Full GUI
+
+---
+
+## Log 8 - June 26
+
+Scrollback has been implemented after a lot of troubles. LETS GO then. Its time for external additions from other devs. Good stuff, so the scrollback is a big vertical screen and accounts for 1000 rows. So thats the main scroll we have so far. Obviously, as time continuous, I will expand on that but thats a later thing. Its an interesting read but I fixed most of the backend for a smooth beta experience.

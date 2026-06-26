@@ -4,6 +4,7 @@
 
 struct kmalloc_entry *heap_head;
 
+//Sets up a heap and sets the size
 void heap_init(){
     heap_head = (struct kmalloc_entry *)HEAP_START;
     heap_head-> size = HEAP_SIZE - sizeof(struct kmalloc_entry);
@@ -12,6 +13,9 @@ void heap_init(){
     heap_head-> next = 0;
 }
 
+//sets up Kmalloc (kernel) and allows memory allocations, breaks memory appropriately
+//the while and the if checks if the memory requested is less than the size present
+//allocates as it finds fit and parititions.
 void *kmalloc(unsigned int req){
     struct kmalloc_entry *current = heap_head;
 
@@ -36,6 +40,7 @@ void *kmalloc(unsigned int req){
     return 0;
 }
 
+//frees up a memory block
 void kfree(void *ptr){
     struct kmalloc_entry *block = (struct kmalloc_entry *)ptr - 1;
     block->flag = 1;

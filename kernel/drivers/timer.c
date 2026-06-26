@@ -20,6 +20,8 @@ void timer_init(){
     outb(0x40, (top >> 8) & 0xFF); // high byte
     idt_fill(32, (unsigned int)timer_isr); // register handler
 }
+
+//handles the clock and accounts for the necessary requirements set
 void timer_handler(){
     tick++;
     scheduler_tick();
@@ -46,7 +48,7 @@ void timer_handler(){
             display_hours = hours_24 % 12;
             if (display_hours == 0) display_hours = 12;
         }
-        
+        //display buffer
         char buf[16];
         buf[0] = '0' + (display_hours / 10);
         buf[1] = '0' + (display_hours % 10);
@@ -58,7 +60,7 @@ void timer_handler(){
         buf[7] = '0' + (s % 10);
         buf[8] = '\0';
         
-        write_pos(0, 65, "            ");   //makes it clear the characters
+        write_pos(0, 65, "            "); //makes it clear the characters
         write_pos(0, 65, buf);
         if (use_12_hour) {
             write_pos(0, 73, suffix);
@@ -66,11 +68,12 @@ void timer_handler(){
     }
     outb(0x20, 0x20);
 }
-
+//calls the inbuilt value and converts BCD to Binary int
 unsigned char bcd_to_bin(unsigned char val) {
     return (val & 0x0F) + ((val >> 4) * 10);
 }
 
+//Reads a register from the CMOS Real Time Clock chip.
 unsigned char read_rtc(unsigned char reg) {
     outb(0x70, reg);
     return inb(0x71);

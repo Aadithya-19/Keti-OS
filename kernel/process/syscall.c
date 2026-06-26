@@ -4,6 +4,7 @@
 #include "process/scheduler.h"
 extern int current_process; 
 
+
 void sys_read(){
     return;
 }
@@ -17,8 +18,7 @@ void sys_exit(){
     schedule();
 }
 
-void syscall_handler(unsigned int syscall_num, unsigned int arg1, unsigned int arg2) {
-    
+void syscall_handler(unsigned int syscall_num, unsigned int arg1, unsigned int arg2) {  
     switch(syscall_num){
         case SYS_WRITE:
             sys_write((const char *)arg1, arg2);

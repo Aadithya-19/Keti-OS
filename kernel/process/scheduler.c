@@ -4,6 +4,8 @@ extern void context_switch();
 extern struct process process_table[MAX_PROCESS];
 extern int current_process;
 
+//sets task to ready and allows them to get their 100ms time
+//then it switches the context
 void schedule(){
     if (process_count < 2) return;
     
@@ -24,7 +26,7 @@ void schedule(){
     context_switch();
 }
 
-
+//sets the 100ms count time
 void scheduler_tick() {
     if (process_count == 0) return;   
     static int tick_count = 0;
