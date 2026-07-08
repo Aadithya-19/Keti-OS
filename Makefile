@@ -85,12 +85,17 @@ kernel/process/scheduler.o: kernel/process/scheduler.c
 kernel/process/syscall.o: kernel/process/syscall.c
 	$(CC) $(CFLAGS) -c kernel/process/syscall.c -o kernel/process/syscall.o
 
+#FileSystem
+kernel/filesystem/vfs.o: kernel/filesystem/vfs.c
+	$(CC) $(CFLAGS) -c kernel/filesystem/vfs.c -o kernel/filesystem/vfs.o
+
 # Link
 OBJS = boot/loader.o boot/gdt_load.o boot/idt_load.o boot/isr.o boot/load_paging.o boot/context_switch.o boot/user_mode.o\
        kernel/kernel.o kernel/display/vga.o kernel/cpu/gdt.o kernel/cpu/idt.o \
        kernel/drivers/ports.o kernel/drivers/keyboard.o kernel/drivers/timer.o kernel/drivers/mouse.o\
        kernel/memory/pmm.o kernel/memory/paging.o kernel/memory/heap.o \
-	   kernel/shell/shell.o kernel/lib/string.o kernel/process/pcb.o kernel/process/scheduler.o kernel/process/syscall.o
+	   kernel/shell/shell.o kernel/lib/string.o kernel/process/pcb.o kernel/process/scheduler.o kernel/process/syscall.o\
+	   kernel/filesystem/vfs.o
 
 $(BUILD_DIR)/kernel.elf: $(OBJS)
 	mkdir -p $(BUILD_DIR)

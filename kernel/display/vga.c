@@ -55,13 +55,13 @@ void render() {
     for (int r = 0; r < SCREEN_ROWS; r++) {
         int buf_row = view_top + r;
         for (int c = 0; c < COLS; c++) {
-            int vga_index = (r * COLS + c) * 2;
+            int idx = (r * COLS + c) * 2;
             if (buf_row >= 0 && buf_row < TOTAL_ROWS) {
-                out[vga_index] = screen_buf[buf_row][c];
-                out[vga_index + 1] = color_buf[buf_row][c];
+                out[idx] = screen_buf[buf_row][c];
+                out[idx + 1] = color_buf[buf_row][c];
             } else {
-                out[vga_index] = ' ';
-                out[vga_index + 1] = 0x0F;
+                out[idx] = ' ';
+                out[idx + 1] = 0x0F;
             }
         }
     }

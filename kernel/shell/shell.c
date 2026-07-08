@@ -1,10 +1,12 @@
 #include "shell.h"
 #include "display/vga.h"
 #include "lib/string.h"
+#include "filesystem/vfs.h"
 
 int input_pos = 0;
 char input_buffer[INPUT_SIZE];
 
+extern struct inode inode_table[];
 extern int tz_offset_minutes;
 extern int use_12_hour;
 extern int dst_offset;
@@ -22,6 +24,9 @@ struct command commands[] = {
     {"timezone", cmd_timezone, "Timezone command (eg. timezone EST)"},
     {"clock", cmd_clock, "Set clock format (12 or 24 hour), (eg. clock 12)"},
     {"dst", cmd_dst, "Set daylight savings time (dst on/off)"},
+    {"ls", cmd_ls, "Shows all files"},
+    {"creat", cmd_creat, "Creates a new file (not a typo)"},
+    {"cat", cmd_cat, "Prints the content of a file"},
     {0, 0, 0}    // sentinel marking the end
 };
 void shell_handle_input(char c){
@@ -40,9 +45,7 @@ void shell_handle_input(char c){
         for (int i = 0; i < INPUT_SIZE; i++) {
             input_buffer[i] = '\0';
         }
-        input_pos = 0;
-        
-        
+        input_pos = 0; 
         print_vga("keti> ");
     }
     else if (c == 0x08 || c == 127) {
@@ -77,7 +80,7 @@ void shell_execute() {
         }
     }
     for (int i = 0; commands[i].name != 0; i++) {
-        if (kstrcmp(input_buffer, commands[i].name) == 0) {
+        if (strcompare(input_buffer, commands[i].name) == 0) {
             commands[i].handler(args);
             return;
         }
@@ -99,14 +102,55 @@ void cmd_help(char *args) {
     }
 }
 
+void cmd_ls(char *args) {
+    for (int i=0; i<MAX_FILES; i++){
+        if (inode_table[i].type != I_EMPTY){
+            print_vga(inode_table[i].name);
+            print_char_vga('\n');
+        }
+    }
+}
+
+void cmd_creat(char *args) {
+    if (!strcompare(args, "")){
+        print_vga("usage: creat <filename>\n");
+        return;
+    }
+    int fd = vcreate(args, 1);
+    if (fd == -1) {
+        print_vga("could not create file (table full?)\n");
+    } else {
+        print_vga("file created\n");
+    }
+
+}
+
+void cmd_cat(char *args){
+    if (strcompare(args, "") == 0) {
+        print_vga("usage: cat <filename>\n");
+        return;
+    }
+    int fd = vopen(args);
+    if (fd == -1) {
+        print_vga("file not found\n");
+        return;
+    }
+    
+    char buf[4096];
+    int bytes = vread(fd, buf, 4096);
+    buf[bytes] = '\0';
+    print_vga(buf);
+    print_char_vga('\n');
+}
+
 void cmd_timezone(char *args) {
-    if (kstrcmp(args, "UTC") == 0)  tz_offset_minutes = 0;
-    else if (kstrcmp(args, "IST") == 0) tz_offset_minutes = 5 * 60 + 30;
-    else if (kstrcmp(args, "EST") == 0)   tz_offset_minutes = -5 * 60;
-    else if (kstrcmp(args, "PST") == 0)  tz_offset_minutes = -8 * 60;
-    else if (kstrcmp(args, "CST") == 0)  tz_offset_minutes = -6 * 60;
-    else if (kstrcmp(args, "SST") == 0)  tz_offset_minutes = -11 * 60;
-    else if (kstrcmp(args, "CEST") == 0) tz_offset_minutes = 2 * 60;
+    if (strcompare(args, "UTC") == 0)  tz_offset_minutes = 0;
+    else if (strcompare(args, "IST") == 0) tz_offset_minutes = 5 * 60 + 30;
+    else if (strcompare(args, "EST") == 0)   tz_offset_minutes = -5 * 60;
+    else if (strcompare(args, "PST") == 0)  tz_offset_minutes = -8 * 60;
+    else if (strcompare(args, "CST") == 0)  tz_offset_minutes = -6 * 60;
+    else if (strcompare(args, "SST") == 0)  tz_offset_minutes = -11 * 60;
+    else if (strcompare(args, "CEST") == 0) tz_offset_minutes = 2 * 60;
     else {
         print_vga("Unrecognized. Timezones available are: \n");
         print_vga(" - UTC (Standard)\n");
@@ -122,10 +166,10 @@ void cmd_timezone(char *args) {
 }
 
 void cmd_clock(char *args) {
-    if (kstrcmp(args, "12") == 0) {
+    if (strcompare(args, "12") == 0) {
         use_12_hour = 1;
         print_vga("Switched to 12-hour clock\n");
-    } else if (kstrcmp(args, "24") == 0) {
+    } else if (strcompare(args, "24") == 0) {
         use_12_hour = 0;
         print_vga("Switched to 24-hour clock\n");
     } else {
@@ -137,10 +181,10 @@ void cmd_clear(char *args) {
     clear_vga();
 }
 void cmd_dst(char *args) {
-    if (kstrcmp(args, "on") == 0) {
+    if (strcompare(args, "on") == 0) {
         dst_offset = 60;
         print_vga("DST enabled\n");
-    } else if (kstrcmp(args, "off") == 0) {
+    } else if (strcompare(args, "off") == 0) {
         dst_offset = 0;
         print_vga("DST disabled\n");
     } else {

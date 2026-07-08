@@ -10,6 +10,7 @@
 #include "process/pcb.h"
 #include "process/scheduler.h"
 #include "drivers/mouse.h"
+#include "filesystem/vfs.h"
 
 extern void enter_usermode(unsigned int eip);
 
@@ -28,6 +29,18 @@ void kernel_main(unsigned int multiboot_ptr) {
     innit((struct multiboot_info *)multiboot_ptr);
     paging_init();
     heap_init();
+    vinit();
+
+    int fd = vcreate("test.txt", 1);      // create writable file
+    vwrite(fd, "hello keti", 10);            // write to it
+
+    char buffer[64];
+    int bytes = vread(fd, buffer, 64);       // read it back
+    buffer[bytes] = '\0';                     // null terminate
+
+    print_vga("File contents: ");
+    print_vga(buffer);
+    print_char_vga('\n');
     //mouse_init();
     shell_init();
     __asm__ volatile ("sti");

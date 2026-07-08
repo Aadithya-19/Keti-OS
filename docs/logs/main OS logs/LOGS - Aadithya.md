@@ -134,3 +134,9 @@ Phase 8:
 ## Log 8 - June 26
 
 Scrollback has been implemented after a lot of troubles. LETS GO then. Its time for external additions from other devs. Good stuff, so the scrollback is a big vertical screen and accounts for 1000 rows. So thats the main scroll we have so far. Obviously, as time continuous, I will expand on that but thats a later thing. Its an interesting read but I fixed most of the backend for a smooth beta experience.
+
+---
+
+## Log 9 - July 7
+
+So today (and over the past few days), I have developed a basic VFS that allows you do read, write, open, close and create a file. In the command list, I have added the commands as well. (you will notice creat instead of create, thats something intentional to pay tribute to the OG!). I am going to add more stuff (like a notepad, and connection to the RAMDISK and BMFS). Other than that its pretty smooth so far. I read a Tutorial OS from the MIT xv6-public. It was a fun read and I understood the read/write implementations used. Finally, OSStep also does a great job of explaining file management.

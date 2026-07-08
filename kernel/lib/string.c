@@ -1,12 +1,21 @@
 #include "string.h"
 
 //compares two strings
-int kstrcmp(const char *a, const char *b) {
-    while (*a && *b && *a == *b) {
-        a++;
-        b++;
+int strcompare(const char *dest, const char *src) {
+    while (*dest && *src && *dest == *src) {
+        dest++;
+        src++;
     }
-    return *a - *b;
+    return *dest - *src;
+}
+
+void strcopy(char *dest, const char *src) {
+    int i = 0;
+    while (src[i] != '\0') {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
 }
 
 //conversion
